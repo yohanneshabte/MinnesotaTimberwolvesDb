@@ -1,0 +1,79 @@
+--Query 1
+SELECT [Ticket].[game-ID], COUNT([ticket-ID]) AS [Ticket Sold] FROM [Ticket] GROUP BY [Ticket].[game-ID] ORDER BY [game-ID]
+
+--Query 2
+SELECT [Game].[game-ID], 'Minnesota Timberwolves' AS [My Team], [Opp].[team-name] AS [Opponent Team], 
+        [home-game] AS [Is Home Game?], COUNT([Game Attendance].[ticket-ID]) AS [# Attendance]
+    FROM [Game] JOIN [Team] AS [Opp] ON [Game].[opponent-ID]=[Opp].[team-ID] 
+                JOIN [Ticket] ON [Game].[game-ID]=[Ticket].[game-ID]
+                JOIN [Game Attendance] ON [Ticket].[ticket-ID]=[Game Attendance].[ticket-ID]                
+                GROUP BY [Game].[game-ID], [Opp].[team-name], [home-game]
+                ORDER BY [Game].[game-ID]
+
+
+--Query 3
+SELECT TOP(25) PERCENT [Game].[game-ID], COUNT([Game Attendance].[ticket-ID]) AS [# Attendance]
+    FROM [Game] JOIN [Team] AS [Opp] ON [Game].[opponent-ID]=[Opp].[team-ID] 
+                JOIN [Ticket] ON [Game].[game-ID]=[Ticket].[game-ID]
+                JOIN [Game Attendance] ON [Ticket].[ticket-ID]=[Game Attendance].[ticket-ID]                
+                GROUP BY [Game].[game-ID], [Opp].[team-name], [home-game]
+                ORDER BY [# Attendance] DESC
+
+--Query 4
+
+--Query 5
+SELECT DISTINCT [emp1].[ID] AS [Emp 1 ID], [emp2].[ID] AS [Emp 2 ID], [emp1].[state] FROM
+    (SELECT [state],[ID] FROM [Address] WHERE [ID]<500) emp1,
+    (SELECT [state],[ID] FROM [Address] WHERE [ID]<500) emp2
+    WHERE emp1.[state] = emp2.[state] AND emp1.[ID] <> emp2.[ID]
+
+--Query 6
+SELECT SUM([Ticket].price) AS [Monthly Total], DATEPART(Month, [order-time]) AS [Month num], DATEPART(Year, [order-time]) AS [Year] FROM [Ticket] 
+    JOIN [Order] ON [Ticket].[order-ID]=[Order].[order-ID] 
+    GROUP BY DATEPART(Year, [order-time]), DATEPART(month, [order-time]) 
+    ORDER BY DATEPART(Year, [order-time]), DATEPART(month, [order-time]);
+    
+--Query 7
+SELECT [state], COUNT([attendance-ID]) AS [# Attendance] FROM [Member] 
+    JOIN [Address] ON [Member].[member-ID]=[Address].ID
+    JOIN [Order] ON [Member].[member-ID]=[Order].[member-ID]
+    JOIN [Ticket] ON [Order].[order-ID]=[Ticket].[order-ID]
+    JOIN [Game Attendance] ON [Ticket].[ticket-ID]=[Game Attendance].[ticket-ID]
+    GROUP BY [state];    
+
+--Query 8
+SELECT TOP(3) [Team].[team-name] AS [Opponent], COUNT([attendance-ID]) AS [# Attendance],
+    RANK() OVER (ORDER BY COUNT([attendance-ID]) DESC) AS [Rank]
+FROM [Team]
+    JOIN [Game] ON [Game].[opponent-ID]=[Team].[team-ID]
+    JOIN [Ticket] ON [Ticket].[game-ID]=[Game].[game-ID]
+    JOIN [Game Attendance] ON [Game Attendance].[ticket-ID]=[Ticket].[ticket-ID]
+    GROUP BY [game].[opponent-ID],[Team].[team-name]
+    ORDER BY [# Attendance] DESC;
+
+--Query 9
+
+--Query 10
+SELECT [Member].[member-ID],[city],[ticket-ID] FROM [Member]
+    JOIN [Order] ON [Order].[member-ID]=[Member].[member-ID]
+    JOIN [Ticket] ON [Ticket].[order-ID]=[Order].[order-ID]
+    JOIN [Address] ON [Address].[ID]=[Member].[member-ID]
+    WHERE [city] LIKE 'M%'
+
+    
+--Query 11
+SELECT [Member].[member-ID], DATEPART(Year, [order-time]) AS [Year], [Member].[first-name],[Member].[last-name], 
+        COUNT([order-ID]) AS [No of Orders] FROM [Member]
+    JOIN [Order] ON [Order].[member-ID]=[Member].[member-ID]
+    GROUP BY DATEPART(Year, [order-time]),[Member].[member-ID],[Member].[first-name],[Member].[last-name]
+--Query 12
+
+--Query 13
+SELECT TOP(75) PERCENT [Game].[game-ID], COUNT([attendance-ID]) AS [# attendance] FROM [Game]
+    JOIN [Ticket] ON [Ticket].[game-ID]=[Game].[game-ID]
+    JOIN [Game Attendance] ON [Game Attendance].[ticket-ID]=[Ticket].[ticket-ID] 
+    GROUP BY [Game].[game-ID]
+    ORDER BY [# attendance] DESC;
+--Query 14
+SELECT [Game].[game-ID], [opponent-ID] ,[is-won] FROM [Game]
+    JOIN [Game Results] ON [Game].[game-ID]=[Game Results].[game-ID]
